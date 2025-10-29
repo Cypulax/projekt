@@ -1,0 +1,108 @@
+Zad.1 
+1.1 CREATE TABLE pracownik(
+    id_pracownika INT PRIMARY KEY AUTO_INCREMENT,
+    imie VARCHAR(40) NOT NULL,
+    nazwisko VARCHAR(60) NOT NULL,
+    data_urodzenia DATE NOT NULL
+);
+1.2 INSERT INTO pracownik (imie, nazwisko, data_urodzenia)
+VALUES ('Jan', 'Kowalski', '2000-10-25'), ('Adrian', 'Pudzianowski', '1998-4-13'), ('Aleksandra', 'Owcarzak', '2001-9-3');
+1.3 UPDATE pracownik SET data_urodzenia = '1999-10-25' WHERE id_pracownika = 1;
+
+Zad.2
+2.1 CREATE TABLE zadanie(
+    id_zadania INT PRIMARY KEY AUTO_INCREMENT,
+    nazwa_zadania VARCHAR(150) NOT NULL,
+    priorytet ENUM('normalny', 'wysoki', 'niski'),
+    opis TEXT,
+    id_pracownika INT,
+    FOREIGN KEY (id_pracownika) REFERENCES pracownik(id_pracownika) ON DELETE SET NULL
+);
+2.2 ALTER TABLE zadanie 
+MODIFY priorytet ENUM('normalny', 'wysoki', 'niski') DEFAULT 'normalny';
+2.3 INSERT INTO zadanie (nazwa_zadania, priorytet, opis, id_pracownika)
+VALUES ('Sprzatanie', 'normalny', 'sprzatanie sali 8', 1);
+
+Zad.3 
+3.1 CREATE TABLE projekt(
+    id_projektu INT PRIMARY KEY AUTO_INCREMENT,
+    nazwa_projektu VARCHAR(150) NOT NULL,
+    data_rozpoczecia DATE NOT NULL,
+    data_zakonczenia DATE
+);
+3.2 ALTER TABLE projekt ADD COLUMN menadzer_projektu INT;
+
+ALTER TABLE projekt 
+ADD CONSTRAINT fk_menadzer_projektu 
+FOREIGN KEY (menadzer_projektu) 
+REFERENCES pracownik(id_pracownika)
+ON DELETE SET NULL
+ON UPDATE CASCADE;
+3.3 INSERT INTO projekt (nazwa_projektu, data_rozpoczecia) VALUES ('niezlyprojekt', '2025-11-13');
+
+INSERT INTO projekt (nazwa_projektu, data_rozpoczecia) VALUES ('projektswieta', '2025-12-20');
+3.4 ALTER TABLE zadanie ADD COLUMN projekt INT;
+
+ALTER TABLE zadanie 
+ADD CONSTRAINT fk_zadanie_projekt 
+FOREIGN KEY (projekt) REFERENCES projekt(id_projektu) 
+ON DELETE CASCADE 
+ON UPDATE CASCADE;
+
+3.5 UPDATE zadanie SET projekt = '1' WHERE id_zadania = 2;
+
+Zad.4
+4.1 CREATE TABLE sprint(
+    id_sprintu INT PRIMARY KEY AUTO_INCREMENT,
+    numer_sprintu INT UNSIGNED,
+    data_rozpoczecia DATE,
+    data_zakonczenia DATE
+);
+4.2 ALTER TABLE zadanie ADD COLUMN sprint INT;
+4.3 ALTER TABLE zadanie 
+ADD CONSTRAINT fk_zadanie_sprint 
+FOREIGN KEY (sprint) REFERENCES sprint(id_sprintu) 
+ON DELETE SET NULL 
+ON UPDATE CASCADE;
+4.4 INSERT INTO sprint (numer_sprintu, data_rozpoczecia, data_zakonczenia)
+VALUES ('1', '2026-1-10', '2026-2-1');
+4.5 INSERT INTO zadanie (nazwa_zadania, priorytet, opis, id_pracownika, menadzer_projektu, sprint)
+VALUES ('zawodnicy', 'wysoki', 'ogarnac zawodnikow na czas', '1', '1', '1');
+
+INSERT INTO zadanie (nazwa_zadania, priorytet, opis, id_pracownika, menadzer_projektu, sprint)
+VALUES ('napoje', 'normalny', 'ogarnac napoje dla zawodnikow', '1', '1', '1');
+
+Zad.5
+5.1 CREATE TABLE status (
+    id_statusu INT PRIMARY KEY AUTO_INCREMENT,
+    nazwa_statusu VARCHAR(20) NOT NULL
+);
+5.2 INSERT INTO status (nazwa_statusu)
+VALUES ('Nowe'),
+       ('W trakcie'),
+       ('Zakończone');
+5.3 CREATE TABLE zadanie_has_status (
+    id_zdarzenia INT PRIMARY KEY AUTO_INCREMENT,
+    id_zadania INT,
+    id_statusu INT,
+    data_zdarzenia DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (id_zadania) REFERENCES zadanie(id_zadania)
+        ON DELETE CASCADE ON UPDATE CASCADE,
+    FOREIGN KEY (id_statusu) REFERENCES status(id_statusu)
+        ON DELETE CASCADE ON UPDATE CASCADE
+);
+5.4 INSERT INTO zadanie_has_status (id_zadania, id_statusu) VALUES (2, 2);
+
+INSERT INTO zadanie_has_status (id_zadania, id_statusu) VALUES (2, 3);
+
+INSERT INTO zadanie_has_status (id_zadania, id_statusu) VALUES (4, 1);
+5.5 DELETE FROM projekt WHERE id_projektu = 1;
+5.6 DROP TABLE sprint; i był error więc da się to obejść tak:
+SET FOREIGN_KEY_CHECKS = 0;
+DROP TABLE sprint;
+SET FOREIGN_KEY_CHECKS = 1;
+
+
+
+
+
