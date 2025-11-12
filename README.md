@@ -1,1 +1,1 @@
-Hello world
+git z laptopa
